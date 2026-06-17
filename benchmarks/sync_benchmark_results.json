@@ -1,0 +1,221 @@
+{
+  "burst": {
+    "sync_resid_us": 97.21297495704984,
+    "coverage_min": 0.969628357276702,
+    "dropout_max": 0.041874999999999996,
+    "alpha_err": 4.991487819405727e-06,
+    "beta_err_us": 25.516008447038985,
+    "alignment_rmse_us": 12.85217053188662,
+    "gate_verdict": "needs_review",
+    "budget": null,
+    "budget_pass": null
+  },
+  "clean": {
+    "sync_resid_us": 0.0,
+    "coverage_min": 1.0,
+    "dropout_max": 0.0,
+    "alpha_err": 0.0,
+    "beta_err_us": 0.0,
+    "alignment_rmse_us": 0.0,
+    "gate_verdict": "certified",
+    "budget": {
+      "alpha_err": 1e-06,
+      "beta_err_us": 50,
+      "alignment_rmse_us": 100
+    },
+    "budget_pass": true
+  },
+  "drift": {
+    "sync_resid_us": 0.22360679774997896,
+    "coverage_min": 1.0,
+    "dropout_max": 0.0,
+    "alpha_err": 3.5349405624884866e-08,
+    "beta_err_us": 0.13889408771711242,
+    "alignment_rmse_us": 0.08167165724464691,
+    "gate_verdict": "certified",
+    "budget": null,
+    "budget_pass": null
+  },
+  "dual_device_offset": {
+    "sync_resid_us": 286.19495103862334,
+    "coverage_min": 0.9981286549707602,
+    "dropout_max": 0.008125000000000049,
+    "alpha_err": 5.448916583272734e-06,
+    "beta_err_us": 20.91488381724048,
+    "alignment_rmse_us": 12.618115159873529,
+    "gate_verdict": "certified",
+    "budget": {
+      "alpha_err": 5e-05,
+      "beta_err_us": 500,
+      "alignment_rmse_us": 600
+    },
+    "budget_pass": true
+  },
+  "jitter": {
+    "sync_resid_us": 521.2096267338123,
+    "coverage_min": 0.9994534665833854,
+    "dropout_max": 0.0,
+    "alpha_err": 3.640649068326063e-06,
+    "beta_err_us": 2.8987467786737398,
+    "alignment_rmse_us": 19.37189820394414,
+    "gate_verdict": "release",
+    "budget": null,
+    "budget_pass": null
+  },
+  "loss": {
+    "sync_resid_us": 106.15207251862773,
+    "coverage_min": 0.9971111805121798,
+    "dropout_max": 0.05687500000000001,
+    "alpha_err": 9.69021332508646e-07,
+    "beta_err_us": 21.95391264353748,
+    "alignment_rmse_us": 18.224551594575768,
+    "gate_verdict": "needs_review",
+    "budget": null,
+    "budget_pass": null
+  },
+  "offset": {
+    "sync_resid_us": 0.0,
+    "coverage_min": 0.9982066276803119,
+    "dropout_max": 0.0,
+    "alpha_err": 0.0,
+    "beta_err_us": 0.0,
+    "alignment_rmse_us": 0.0,
+    "gate_verdict": "certified",
+    "budget": null,
+    "budget_pass": null
+  },
+  "_multimodal": {
+    "mm_5device": {
+      "sync_resid_us": 407.90702371986686,
+      "reachable": [
+        "audio",
+        "camera",
+        "glove",
+        "imu",
+        "mocap"
+      ],
+      "unreachable": [],
+      "n_edges": 6,
+      "gate_verdict": "needs_review",
+      "devices": {
+        "imu": {
+          "hops": 1,
+          "alpha_err": 6.330117126474022e-06,
+          "beta_err_us": 61.17640455579385,
+          "alignment_rmse_us": 38.725193146648806,
+          "budget_pass": true
+        },
+        "audio": {
+          "hops": 1,
+          "alpha_err": 2.441382931728242e-05,
+          "beta_err_us": 114.8389945315048,
+          "alignment_rmse_us": 58.94413300550781,
+          "budget_pass": true
+        },
+        "camera": {
+          "hops": 2,
+          "alpha_err": 5.457024672428368e-05,
+          "beta_err_us": 134.0665936975529,
+          "alignment_rmse_us": 151.24721106192607,
+          "budget_pass": true
+        },
+        "mocap": {
+          "hops": 2,
+          "alpha_err": 1.257877595928214e-05,
+          "beta_err_us": 52.23740356557755,
+          "alignment_rmse_us": 106.8204569660512,
+          "budget_pass": true
+        }
+      }
+    }
+  },
+  "_robustness": {
+    "corruption": {
+      "none": {
+        "baseline": {
+          "n_edges": 6,
+          "n_unreachable": 0,
+          "worst_alpha_err": 5.457024672428368e-05,
+          "worst_beta_err_us": 134.0665936975529
+        },
+        "robust": {
+          "n_edges": 6,
+          "n_unreachable": 0,
+          "worst_alpha_err": 5.457024672428368e-05,
+          "worst_beta_err_us": 134.0665936975529
+        }
+      },
+      "moderate": {
+        "baseline": {
+          "n_edges": 6,
+          "n_unreachable": 0,
+          "worst_alpha_err": 9.429155106688292e-05,
+          "worst_beta_err_us": 613.3363076248606
+        },
+        "robust": {
+          "n_edges": 6,
+          "n_unreachable": 0,
+          "worst_alpha_err": 7.120513770786374e-05,
+          "worst_beta_err_us": 330.4990386210575
+        }
+      },
+      "heavy": {
+        "baseline": {
+          "n_edges": 7,
+          "n_unreachable": 0,
+          "worst_alpha_err": 0.003937729545285595,
+          "worst_beta_err_us": 5930.42438941868
+        },
+        "robust": {
+          "n_edges": 6,
+          "n_unreachable": 0,
+          "worst_alpha_err": 0.0001623723445716152,
+          "worst_beta_err_us": 521.4141802197482
+        }
+      }
+    },
+    "coarse_sweep": [
+      {
+        "coarse_noise_us": 0,
+        "n_unreachable": 0,
+        "max_alpha_err": 5.457024672428368e-05,
+        "max_beta_err_us": 134.0665936975529,
+        "sync_resid_us": 407.90702371986686
+      },
+      {
+        "coarse_noise_us": 4000,
+        "n_unreachable": 0,
+        "max_alpha_err": 5.457024672428368e-05,
+        "max_beta_err_us": 134.0665936975529,
+        "sync_resid_us": 407.90702371986686
+      },
+      {
+        "coarse_noise_us": 8000,
+        "n_unreachable": 0,
+        "max_alpha_err": 5.457024672428368e-05,
+        "max_beta_err_us": 134.0665936975529,
+        "sync_resid_us": 407.90702371986686
+      },
+      {
+        "coarse_noise_us": 20000,
+        "n_unreachable": 3,
+        "max_alpha_err": 2.441382931728242e-05,
+        "max_beta_err_us": 20431.0,
+        "sync_resid_us": 251.31459368687686
+      },
+      {
+        "coarse_noise_us": 40000,
+        "n_unreachable": 3,
+        "max_alpha_err": 1.8000000000073513e-05,
+        "max_beta_err_us": 72740.62342261942,
+        "sync_resid_us": 302.72916939072786
+      }
+    ],
+    "piecewise": {
+      "affine_fit_residual_us": 211.6823057257006,
+      "piecewise_fit_residual_us": 162.41777406839847,
+      "affine_alignment_rmse_us": 160.03657863126168,
+      "piecewise_alignment_rmse_us": 55.026352777555594
+    }
+  }
+}

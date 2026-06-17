@@ -1,0 +1,33 @@
+# DeviceDescriptor — a follower device on an independent clock.
+# Present only to exercise cross-device synchronization config; the core does
+# NOT assume vision exists and reads nothing modality-specific from this file.
+contract_version: "1.0.0"
+device_id: ego_cam
+modality: rgb              # open-vocabulary metadata; never read by the core
+producer: synthetic_vision
+is_synthetic: true
+reference_candidate: false
+
+clock:
+  clock_id: ego_cam_clock
+  timestamp_unit: microseconds
+  resolution_us: 100
+  nominal_epoch: device_boot
+  expected_offset_us: 20000      # declared prior; not a correction
+
+evidence_tiers:
+  - shared_event           # optical flash visible cross-modally
+  - wall_clock
+
+streams:
+  - stream_id: image
+    device_id: ego_cam
+    kind: image
+    nominal_rate_hz: 30.0
+    kernel: hold           # codec-locked / discrete -> latest-at
+    payload_kind: rgb_frame_uri
+    units: none
+
+# Spatial calibration is referenced but NEVER consumed for sync logic (C6).
+calibration_refs:
+  - "calib/ego_cam_intrinsics.json"

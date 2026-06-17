@@ -1,0 +1,20 @@
+# Session-level synchronization policy (see docs/REFERENCE_CLOCK_DECISION.md).
+# v0.3 uses the designated-anchor reference-clock policy.
+reference_clock_policy: designated_anchor
+
+# Reference-timeline grid rate. Default convention: the highest native rate
+# among the joined streams. Left here as a session default; never hard-coded to
+# any assumed video frame rate (vision is not assumed to exist).
+grid_rate_hz: 1600
+
+# Gap rejection tolerance (microseconds). Values held/interpolated across a gap
+# wider than this are flagged invalid rather than fabricated.
+rejection_tolerance_us: 1875        # ~3 master steps at 1600 Hz
+
+# QA gate bands (reproduce Data Engine Phase-7 thresholds).
+gates:
+  release_resid_us: 2000            # < 2 ms  -> release
+  certified_resid_us: 500           # < 0.5 ms -> certified
+  hardfail_resid_us: 5000           # >= 5 ms  -> blocked
+  min_coverage: 0.99
+  max_dropout: 0.03

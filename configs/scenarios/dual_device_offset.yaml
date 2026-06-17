@@ -1,0 +1,19 @@
+# Forward-model scenario (consumed by the DEFERRED synchronization stages).
+# Non-trivial clock divergence so the estimator has real work to do: offset +
+# skew + jitter + bursty-free random loss. Parameters not interpreted in v0.3.
+name: dual_device_offset
+description: >
+  Independent camera clock with offset, skew, timestamp jitter, packet delay and
+  Bernoulli loss. Exercises affine recovery and gap flagging once the
+  synchronization stages are implemented.
+reference_device: glove_L
+devices:
+  - descriptor: devices/glove_L.descriptor.yaml
+  - descriptor: devices/ego_cam.descriptor.yaml
+    forward:
+      offset_us: 20431
+      skew_ppm: 18.0
+      jitter_us_sigma: 300.0
+      packet_delay_us: 1500
+      packet_loss_p: 0.01
+      loss_model: bernoulli      # gilbert optional (deferred)

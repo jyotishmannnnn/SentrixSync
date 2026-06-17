@@ -1,0 +1,42 @@
+# DeviceDescriptor — synthetic tactile glove (SentrixSim), Layout B.
+# One device == one clock domain (the wrist-hub clock). SentrixSim's internal
+# multi-rate consolidation is intra-device and stays in SentrixSim; here the
+# glove simply exposes its streams on a single clock.
+contract_version: "1.0.0"
+device_id: glove_L
+modality: tactile          # open-vocabulary metadata; never read by the core
+producer: sentrixsim
+is_synthetic: true
+reference_candidate: true  # highest-rate, most-trusted clock -> anchor candidate
+
+clock:
+  clock_id: glove_L_hub
+  timestamp_unit: microseconds
+  resolution_us: 1
+  nominal_epoch: session_start
+  expected_skew_ppm: 0.0
+
+evidence_tiers:
+  - shared_event           # tap impulse visible in tactile + IMU
+  - wall_clock
+
+streams:
+  - stream_id: tactile_field
+    device_id: glove_L
+    kind: tactile_field
+    nominal_rate_hz: 400.0
+    kernel: continuous
+    payload_kind: bmm350_cluster_uT
+    units: uT
+    payload_shape: [21, 3]
+    subframe_capable: true
+  - stream_id: dynamics
+    device_id: glove_L
+    kind: imu_dynamics
+    nominal_rate_hz: 1600.0
+    kernel: continuous
+    payload_kind: lis2dtw12_accel_g
+    units: g
+    payload_shape: [3, 3]
+
+calibration_refs: []

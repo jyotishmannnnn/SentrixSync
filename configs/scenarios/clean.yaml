@@ -1,0 +1,17 @@
+# Forward-model scenario (consumed by the DEFERRED synchronization stages).
+# Loaded as a lightly-validated raw dict in v0.3; parameters are not interpreted
+# yet. Kept here so the foundation has realistic config to load and test against.
+name: clean
+description: >
+  Two devices, small fixed offset, no jitter or loss. Estimator sanity baseline:
+  recovered offset should match the injected offset within rounding.
+reference_device: glove_L
+devices:
+  - descriptor: devices/glove_L.descriptor.yaml
+  - descriptor: devices/ego_cam.descriptor.yaml
+    forward:
+      offset_us: 20000
+      skew_ppm: 0.0
+      jitter_us_sigma: 0.0
+      packet_delay_us: 0
+      packet_loss_p: 0.0
