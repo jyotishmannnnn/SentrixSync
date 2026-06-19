@@ -25,9 +25,11 @@ from typing import Any
 # Version constants
 # --------------------------------------------------------------------------- #
 SCHEMA_VERSION = "0.3.0"        # docs/SESSION_SCHEMA.md document-structure version
-CONTRACT_VERSION = "1.0.1"      # docs/CONTRACT.md ingestion-contract version
+CONTRACT_VERSION = "1.1.0"      # docs/CONTRACT.md ingestion-contract version
                                 # 1.0.1: PATCH — payload_inline + payload-URI grammar clarified
-SENTRIXSYNC_VERSION = "0.3.0"   # framework version
+                                # 1.1.0: MINOR — opaque DeviceDescriptor.topology_ref /
+                                #        topology_hash provenance (never consumed; C6-style)
+SENTRIXSYNC_VERSION = "0.4.0"   # framework version
 
 # Supported ingestion-contract MAJOR (semver). We accept 1.x.y and reject >=2.
 SUPPORTED_CONTRACT_MAJOR = 1

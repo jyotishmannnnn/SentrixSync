@@ -101,13 +101,18 @@ adapter. The synchronization core is identical for all of them.
 
 | Category | Examples | Status |
 |---|---|---|
-| **Real hardware (MCUs)** | Arduino, ESP32, RP2040, STM32, Teensy, generic serial devices | Integrated via a user-written adapter (Serial/CSV/JSON/binary). Templates in the User Guide. |
+| **Real hardware (MCUs)** | Arduino, ESP32, RP2040, STM32, Teensy, generic serial devices; the SentrixCapture glove producer | SentrixCapture emits the same Parquet artifact contract as SentrixSim and is read by the shipped adapter (`ts_column="t_capture_us"`). Other serial/CSV/JSON/binary devices are integrated via a user-written adapter — templates in the User Guide. |
 | **Vision** | MP4 recordings, webcam / smartphone / industrial camera streams | Integrated via a user-written video adapter (frame timestamps + a 1-D feature series). Template in the User Guide. |
 | **Synthetic sources** | tactile generators, simulated sensors, benchmark scenarios | **Ships in-repo** (`scenarios/`). No adapter needed — used identically to real devices. |
 
-**What ships today:** the `SentrixSimAdapter` (reads SentrixSim Parquet / in-memory
-episodes) and two impulse detectors (`tactile_tap`, `visual_flash`). Real-hardware
-and video adapters, and additional detectors, are written by the integrator
+**What ships today:** the `SentrixSimAdapter` and two impulse detectors
+(`tactile_tap`, `visual_flash`). The adapter reads a producer's Parquet (or
+in-memory) episode by its self-describing metadata: it consumes only the timestamp
+column (`t_master_us` for SentrixSim, `t_capture_us` for the SentrixCapture
+real-hardware producer) and references payloads by URI. Both producers emit the
+**same artifact contract**, so the adapter reads them identically; opaque
+`topology_ref` / `topology_hash` provenance is auto-carried from the file's
+metadata. Video adapters and additional detectors are written by the integrator
 following the contract — see the guides below. Synthetic and real devices enter
 through the **same contract**, so settings validated in simulation transfer to
 hardware unchanged.
@@ -299,7 +304,7 @@ episodes; it is included in the `dev` extra.
 
 ## Testing
 
-- **212 tests pass** across **27 test modules** (`pytest -q`).
+- **215 tests pass** across **27 test modules** (`pytest -q`).
 - Coverage spans every layer: core contracts/entities, payload-URI grammar,
   ingestion, clock estimation (offset/affine/TLS/RANSAC/piecewise), detectors and
   association, graph reconciliation, timeline/join, confidence (incl. decay), and
@@ -347,7 +352,7 @@ src/sentrixsync/
   scenarios/  synthetic (2-device) · multimodal (N-device graph) · robustness (corruption/coarse/piecewise)
   config.py · manifest.py · lifecycle.py
 benchmarks/   run_sync_benchmark.py (+ generated report / json)
-tests/        212 tests across 27 modules
+tests/        215 tests across 27 modules
 docs/         architecture, contract, design notes, integration & user guides
 ```
 
@@ -382,9 +387,14 @@ item above is grounded in the "deferred" list in `IMPLEMENTATION_NOTES.md`.
 
 ## Relationship to SentrixSim
 
-SentrixSim (the tactile simulator) is a *producer*; SentrixSync is the
-*synchronization framework*. SentrixSim's internal multi-rate consolidation
+SentrixSim (the tactile simulator) is *a* producer; SentrixSync is the
+*synchronization framework*. SentrixSim is no longer the only producer — the
+SentrixCapture real-hardware glove emits the **same Parquet artifact contract**
+(a device-local timestamp column + `sensor_id`-keyed payload columns +
+self-describing metadata), so the shipped `SentrixSimAdapter` reads both
+identically (it differs only by `ts_column`: `t_master_us` for Sim,
+`t_capture_us` for Capture). SentrixSim's internal multi-rate consolidation
 (BMM350 / LIS2DTW12 / temperature onto one hub clock) is *intra-device* and stays
-in SentrixSim. To SentrixSync, the whole glove is **one device, one clock**,
-integrated through the shipped `SentrixSimAdapter` — with no code change in
-SentrixSim, and nothing flowing from SentrixSync back into it.
+in SentrixSim. To SentrixSync, the whole glove is **one device, one clock** — with
+no code change in either producer, and nothing flowing from SentrixSync back into
+them.

@@ -81,3 +81,46 @@ def test_from_parquet_real_episode_if_available():
     assert u.scheme == "parquet"
     # timestamps are non-decreasing (device-local, un-corrected)
     assert bool(np.all(np.diff(batch.t_device_us) >= 0))
+
+
+# ---- Phase 2: opaque topology provenance ----
+def test_topology_provenance_roundtrip():
+    from sentrixsync.core import DeviceDescriptor
+    desc = make_tactile_descriptor()
+    desc.topology_ref = "Mark2_v1"
+    desc.topology_hash = "sha256:abc123"
+    desc.validate()
+    rt = DeviceDescriptor.from_dict(desc.to_dict())
+    assert rt.topology_ref == "Mark2_v1"
+    assert rt.topology_hash == "sha256:abc123"
+
+
+def test_topology_provenance_rejects_empty_string():
+    from sentrixsync.core.types import ValidationError
+    desc = make_tactile_descriptor()
+    desc.topology_ref = ""
+    with pytest.raises(ValidationError, match="topology_ref"):
+        desc.validate()
+
+
+def test_from_parquet_fills_topology_provenance(tmp_path):
+    pytest.importorskip("pyarrow")
+    import json
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    n = 8
+    table = pa.table({"t_master_us": pa.array(np.arange(n, dtype=np.int64) * 625)})
+    table = table.replace_schema_metadata({
+        b"sentrixsim_meta": json.dumps(
+            {"descriptor_version": "Mark2_v1",
+             "descriptor_hash": "sha256:deadbeef"}).encode()})
+    p = tmp_path / "ep.parquet"
+    pq.write_table(table, p)
+
+    desc = make_tactile_descriptor()              # caller leaves topology unset
+    assert desc.topology_ref is None
+    a = SentrixSimAdapter.from_parquet(p, desc)
+    # opaque provenance flowed from the producer's parquet metadata
+    assert a.descriptor().topology_ref == "Mark2_v1"
+    assert a.descriptor().topology_hash == "sha256:deadbeef"

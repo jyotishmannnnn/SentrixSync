@@ -1,6 +1,6 @@
 # SentrixSync — Session Schema
 
-**Status:** Approved architecture, pre-implementation.
+**Status:** Implemented (`core/session.py`); schema version 0.3.0.
 **Scope:** the Session as a first-class object — its parts, the references it holds, and illustrative manifests. This describes a *document structure*, not a database schema or an API.
 **Companion documents:** [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`CONTRACT.md`](./CONTRACT.md), [`REFERENCE_CLOCK_DECISION.md`](./REFERENCE_CLOCK_DECISION.md).
 
@@ -61,6 +61,15 @@ A list of the DeviceDescriptors (defined in `CONTRACT.md`) that participate in t
 | `stream_refs` | Pointers to where each stream's raw samples live (e.g. Parquet/MCAP URIs). |
 
 The Session never stores samples inline; it points at them.
+
+The DeviceDescriptor a registration carries may include two optional **opaque provenance** fields (CONTRACT.md §3), which flow verbatim into the manifest so the Data Engine can trace and package them:
+
+| Field | Meaning |
+|---|---|
+| `topology_ref` | Hardware-revision topology-descriptor version the device's streams were produced under, e.g. `Mark2_v1`. |
+| `topology_hash` | Content hash of that descriptor, e.g. `sha256:…`. |
+
+Both are **never consumed by synchronization** (same discipline as `calibration_refs`). When an adapter reads a producer's parquet, it may auto-fill these from the file's self-describing metadata if the caller left them unset.
 
 ---
 
@@ -153,8 +162,8 @@ This is the first integration target: SentrixSim wrapped as one device, no visio
 ```yaml
 session_id: 01J9SYNTH0001
 schema_version: 0.3.0
-contract_version: 1.0.0
-sentrixsync_version: 0.3.0
+contract_version: 1.1.0
+sentrixsync_version: 0.4.0
 origin: synthetic
 producers: [sentrixsim]
 reference_clock_policy: designated_anchor
@@ -209,7 +218,7 @@ Vision is shown here only to illustrate cross-device sync; it is not assumed by 
 ```yaml
 session_id: 01J9VT00002
 schema_version: 0.3.0
-contract_version: 1.0.0
+contract_version: 1.1.0
 origin: synthetic
 producers: [sentrixsim, synthetic_vision]
 reference_clock_policy: designated_anchor
@@ -273,15 +282,18 @@ Structurally identical to 9.2. The differences are confined to the edges: `origi
 ```yaml
 session_id: 01J9REAL0003
 schema_version: 0.3.0
-contract_version: 1.0.0
+contract_version: 1.1.0
 origin: real
-producers: [mark2_glove, rgb_cam, depth_cam, optical_tracker]
+producers: [sentrixcapture, rgb_cam, depth_cam, optical_tracker]
 reference_clock_policy: designated_anchor
 grid_rate_hz: 1000
 rejection_tolerance_us: 3000
 
 devices:
-  - { device_id: glove_R, role: reference, stream_refs: { tactile_field: ... , dynamics: ... } }
+  # topology_ref/topology_hash are opaque provenance carried verbatim from the
+  # producer's parquet metadata; synchronization never reads them.
+  - { device_id: glove_R, role: reference, topology_ref: Mark2_v1, topology_hash: "sha256:…",
+      stream_refs: { tactile_field: ... , dynamics: ... } }
   - { device_id: rgb_cam,  role: follower, stream_refs: { image: ... } }
   - { device_id: depth_cam, role: follower, stream_refs: { depth_map: ... } }
   - { device_id: tracker,  role: follower, stream_refs: { pose6d: ... } }

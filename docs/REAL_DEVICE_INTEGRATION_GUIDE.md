@@ -97,12 +97,22 @@ bridge for free.
 ## 2. Real Hardware Example — Two Devices, Treated Identically
 
 ### Device A — Tactile glove
-Possible sources: **Arduino, ESP32, RP2040, STM32, Teensy, or a custom MCU.**
+Possible sources: **Arduino, ESP32, RP2040, STM32, Teensy, a custom MCU, or the
+SentrixCapture real-hardware glove producer.**
 Data stream (device-local clock):
 
 ```
 t_device_us , sensor_values[...]     # e.g. 21 taxels, or 5 fingertip pressures
 ```
+
+> **SentrixCapture** is the real-hardware counterpart to the SentrixSim simulator:
+> it emits the *same* Parquet artifact contract (a device-local timestamp column +
+> `sensor_id`-keyed payload columns + self-describing metadata). The shipped
+> `SentrixSimAdapter` reads it identically — pass `ts_column="t_capture_us"`
+> (versus `"t_master_us"` for SentrixSim). Opaque hardware-revision provenance
+> (`topology_ref`, e.g. `Mark2_v1`, and `topology_hash`) is auto-carried from the
+> file's metadata into the DeviceDescriptor and Session manifest; it is **never
+> consumed by synchronization** (CONTRACT.md §3).
 
 ### Device B — Video camera
 Possible sources: **USB webcam, smartphone, action cam, industrial camera, RGB or

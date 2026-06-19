@@ -1,11 +1,12 @@
 # SentrixSync — Ingestion Contract
 
 **Status:** Implemented in core (Phase 1) and ingestion (Phase 4).
-**Contract version:** 1.0.1 (PATCH — clarifies `payload_inline` and the payload-reference URI grammar; no breaking change).
+**Contract version:** 1.1.0 (MINOR — additive optional `topology_ref` / `topology_hash` provenance on DeviceDescriptor; older adapters remain valid).
 **Scope:** the data contract every device adapter must satisfy. This document defines *data shapes and rules*, not function signatures, APIs, or storage schemas.
 **Companion documents:** [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`SESSION_SCHEMA.md`](./SESSION_SCHEMA.md), [`REFERENCE_CLOCK_DECISION.md`](./REFERENCE_CLOCK_DECISION.md).
 
 > **Changelog**
+> - **1.1.0** — Added optional opaque `topology_ref` / `topology_hash` provenance to DeviceDescriptor (§3). Purely additive: never consumed by synchronization, carried verbatim for downstream tracing.
 > - **1.0.1** — Named the `payload_inline` field and the *exactly-one-of* `payload_ref`/`payload_inline` rule (§5); defined the payload-reference URI grammar (§6).
 > - **1.0.0** — Initial contract.
 
@@ -63,8 +64,12 @@ One per device per session. A **device is exactly one clock domain.**
 |---|---|---|
 | `reference_candidate` | boolean (default false) | Whether this device may serve as the session reference clock. |
 | `calibration_refs` | list of URIs | Pointers to spatial/temporal calibration artifacts owned elsewhere (intrinsics, extrinsics, clock-fit logs). Referenced, not parsed by the core. |
+| `topology_ref` | string | Opaque hardware-revision provenance: the topology-descriptor version this device's streams were produced under, e.g. `Mark2_v1`. Carried verbatim; **never consumed by synchronization** (same discipline as `calibration_refs`). |
+| `topology_hash` | string | Opaque content hash of that topology descriptor, e.g. `sha256:…`. Same treatment as `topology_ref`. |
 | `param_tiers` | object | KNOWN/ESTIMATED/UNKNOWN classification + confidence for clock/transport parameters, mirroring SentrixSim's registry. |
 | `notes` | string | Free text. |
+
+> `topology_ref` / `topology_hash` are pass-through metadata for downstream consumers (the Data Engine traces and packages them). The core stays modality-neutral and does **not** branch on topology. Adapters reading a producer's parquet may auto-fill these from the file's self-describing metadata when the caller leaves them unset.
 
 ### ClockDescriptor
 

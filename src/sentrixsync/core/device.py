@@ -210,6 +210,12 @@ class DeviceDescriptor(Serializable):
     streams: list[StreamDescriptor]
     reference_candidate: bool = False
     calibration_refs: list[str] = field(default_factory=list)   # URIs; never consumed (C6)
+    # Topology provenance (Phase 2). Opaque pass-through: which hardware-revision
+    # topology descriptor this device's streams were produced under. NEVER consumed
+    # by synchronization logic (same discipline as calibration_refs / decision C6);
+    # carried verbatim so downstream (DataEngine) can trace + package it.
+    topology_ref: str | None = None        # descriptor version id, e.g. "Mark2_v1"
+    topology_hash: str | None = None       # e.g. "sha256:..."
     param_tiers: dict | None = None
     notes: str | None = None
     contract_version: str = CONTRACT_VERSION
@@ -242,6 +248,10 @@ class DeviceDescriptor(Serializable):
         require(isinstance(self.calibration_refs, list)
                 and all(isinstance(x, str) for x in self.calibration_refs),
                 "device.calibration_refs must be a list of URI strings")
+        for label, v in (("topology_ref", self.topology_ref),
+                         ("topology_hash", self.topology_hash)):
+            if v is not None:
+                require_nonempty_str(v, f"device.{label}")
 
     def stream_ids(self) -> list[str]:
         return [s.stream_id for s in self.streams]
@@ -263,6 +273,8 @@ class DeviceDescriptor(Serializable):
             streams=[StreamDescriptor.from_dict(s) for s in streams_raw],
             reference_candidate=d.get("reference_candidate", False),
             calibration_refs=list(d.get("calibration_refs", [])),
+            topology_ref=d.get("topology_ref"),
+            topology_hash=d.get("topology_hash"),
             param_tiers=d.get("param_tiers"),
             notes=d.get("notes"),
             contract_version=d.get("contract_version", CONTRACT_VERSION),

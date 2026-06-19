@@ -21,10 +21,40 @@ from typing import Mapping
 
 import numpy as np
 
+import json
+
 from ..core.device import DeviceDescriptor, Sample
 from ..core.types import require, require_nonempty_str
 from ..core.uri import build_payload_uri, parse_payload_uri
 from .adapter import _CursorAdapterBase
+
+
+def _fill_topology_provenance(descriptor: DeviceDescriptor, schema_metadata) -> None:
+    """Populate descriptor.topology_ref/topology_hash from a producer's parquet KV
+    metadata, only when the caller left them unset. Opaque pass-through; never
+    consumed by sync. Understands SentrixSim (`sentrixsim_meta` JSON) and
+    SentrixCapture (`sentrix_descriptor_*`) conventions."""
+    if schema_metadata is None:
+        return
+    if descriptor.topology_ref is not None and descriptor.topology_hash is not None:
+        return
+    ver = ho = None
+    sim_blob = schema_metadata.get(b"sentrixsim_meta")
+    if sim_blob is not None:
+        try:
+            m = json.loads(sim_blob.decode())
+            ver, ho = m.get("descriptor_version"), m.get("descriptor_hash")
+        except (ValueError, UnicodeDecodeError):
+            pass
+    if ver is None:
+        v = schema_metadata.get(b"sentrix_descriptor_version")
+        h = schema_metadata.get(b"sentrix_descriptor_hash")
+        ver = v.decode() if v else None
+        ho = h.decode() if h else None
+    if descriptor.topology_ref is None and ver:
+        descriptor.topology_ref = ver
+    if descriptor.topology_hash is None and ho:
+        descriptor.topology_hash = ho
 
 
 class SentrixSimAdapter(_CursorAdapterBase):
@@ -115,6 +145,10 @@ class SentrixSimAdapter(_CursorAdapterBase):
         require_nonempty_str(ts_column, "ts_column")
         table = pq.read_table(p, columns=[ts_column])
         ts = np.asarray(table.column(ts_column).to_numpy(), dtype=np.int64)
+        # Opaque topology provenance (Phase 2): carry the producer's descriptor
+        # version/hash if the file declares it and the caller left it unset. This
+        # is metadata only — synchronization never reads it.
+        _fill_topology_provenance(descriptor, table.schema.metadata)
         timestamps = {sid: ts for sid in descriptor.stream_ids()}
         base = build_payload_uri("parquet", str(p).replace("\\", "/"))
         return cls(descriptor, timestamps, base, ground_truth=ground_truth)

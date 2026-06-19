@@ -8,12 +8,12 @@ from sentrixsync.core.types import ValidationError
 
 
 def test_version_constants_present():
-    assert T.CONTRACT_VERSION == "1.0.1"      # PATCH bump: payload_inline + URI grammar
+    assert T.CONTRACT_VERSION == "1.1.0"      # MINOR bump: opaque topology provenance fields
     assert T.SCHEMA_VERSION == "0.3.0"
-    assert T.SENTRIXSYNC_VERSION == "0.3.0"
-    # PATCH bump must not change MAJOR support
+    assert T.SENTRIXSYNC_VERSION == "0.4.0"
+    # MINOR bump must not change MAJOR support
     assert T.contract_version_supported("1.0.0")
-    assert T.contract_version_supported("1.0.1")
+    assert T.contract_version_supported("1.1.0")
 
 
 @pytest.mark.parametrize("v,expected", [
