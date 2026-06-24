@@ -18,6 +18,7 @@ from .core.types import (
     SENTRIXSYNC_VERSION,
     ValidationError,
 )
+from .persist import load_session, load_sync_result, save_sync_result
 
 __version__ = SENTRIXSYNC_VERSION
 
@@ -27,4 +28,7 @@ __all__ = [
     "SCHEMA_VERSION",
     "SENTRIXSYNC_VERSION",
     "ValidationError",
+    "save_sync_result",
+    "load_sync_result",
+    "load_session",
 ]

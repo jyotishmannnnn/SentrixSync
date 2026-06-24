@@ -25,5 +25,8 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.pytest.ini_options]
+minversion = "7.0"
 testpaths = ["tests"]
 pythonpath = ["src"]
+addopts = "-ra"
+filterwarnings = ["default"]
